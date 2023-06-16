@@ -107,9 +107,9 @@ _sodium_runtime_arm_cpu_features(CPUFeatures * const cpu_features)
             cpu_features->has_armcrypto = 1;
         }
     }
-#elif defined(HAVE_ANDROID_GETCPUFEATURES) && defined(ANDROID_CPU_ARM_FEATURE_AES)
+#elif defined(HAVE_ANDROID_GETCPUFEATURES)
     cpu_features->has_armcrypto =
-        (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_AES) != 0x0;
+        (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_AES) != 0x0;
 #elif defined(__aarch64__) && defined(AT_HWCAP)
 # ifdef HAVE_GETAUXVAL
     cpu_features->has_armcrypto = (getauxval(AT_HWCAP) & (1L << 3)) != 0;
