@@ -68,7 +68,12 @@
  * replaced without patching nor recompiling the library.
  */
 # include <windows.h>
-# define RtlGenRandom SystemFunction036
+# if WINAPI_FAMILY == WINAPI_FAMILY_GAMES
+#  include <bcrypt.h>
+#  include <ntstatus.h>
+# else
+#  define RtlGenRandom SystemFunction036
+# endif /* WINAPI_FAMILY == WINAPI_FAMILY_GAMES */
 # if defined(__cplusplus)
 extern "C"
 # endif
@@ -363,9 +368,15 @@ randombytes_sysrandom_buf(void * const buf, const size_t size)
     if (size > (size_t) 0xffffffffUL) {
         sodium_misuse(); /* LCOV_EXCL_LINE */
     }
+#  if WINAPI_FAMILY == WINAPI_FAMILY_GAMES
+    if (STATUS_SUCCESS != BCryptGenRandom(NULL, buf, size, BCRYPT_USE_SYSTEM_PREFERRED_RNG)) {
+        sodium_misuse();
+    }
+#  else
     if (! RtlGenRandom((PVOID) buf, (ULONG) size)) {
         sodium_misuse(); /* LCOV_EXCL_LINE */
     }
+#  endif /* WINAPI_FAMILY == WINAPI_FAMILY_GAMES */
 # endif /* _WIN32 */
 }
 
